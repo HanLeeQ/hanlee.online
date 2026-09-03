@@ -9,7 +9,7 @@
 <!-- Keeps this page out of search results. It's a placeholder, not content. -->
 <meta name="robots" content="noindex">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>▲</text></svg>">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/style.css">
 
 <script>
@@ -22,9 +22,28 @@
 
 <body>
 
+<canvas id="ascii" class="ascii" aria-hidden="true"></canvas>
+
 <header>
-  <h1>LinkedIn</h1>
-  <p class="tagline">Being rebuilt. Back shortly.</p>
+  <h1 class="brand">
+    <svg class="logo" viewBox="0 0 420 100" role="img" aria-label="Han Connects">
+      <g stroke="currentColor" stroke-width="11" stroke-linecap="butt"
+         stroke-linejoin="miter" fill="none">
+        <line x1="32" y1="14" x2="32" y2="86"/>
+        <line x1="68" y1="14" x2="68" y2="86"/>
+        <path d="M10 60 L50 60 L50 40 L90 40"/>
+      </g>
+      <text x="112" y="62" fill="currentColor"
+            style="font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:34px">connects</text>
+    </svg>
+  </h1>
+
+  <p class="tagline">LinkedIn &mdash; being rebuilt. Back shortly.</p>
+
+  <nav>
+    <a href="/">Home</a>
+    <button class="bulb" id="theme" type="button" aria-label="Switch color theme"></button>
+  </nav>
 </header>
 
 <hr>
@@ -40,9 +59,8 @@
   </p>
   <p>
     If you were headed to LinkedIn to reach me, skip the middleman &mdash;
-    <a href="mailto:nateq876@gmail.com" id="email">nateq876@gmail.com</a><button class="copy" id="copy" aria-label="Copy email address">copy</button>
+    <a href="mailto:nateq876@gmail.com" id="email">nateq876@gmail.com</a><button class="copy" id="copy" type="button" aria-label="Copy email address">copy</button>
   </p>
-  <p><a href="/">&larr; back</a></p>
 </section>
 
 <script src="/script.js"></script>

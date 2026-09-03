@@ -11,7 +11,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yourdomain.com/">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>▲</text></svg>">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/style.css">
 
 <!-- Applies the saved theme before first paint so the page never flashes
@@ -26,16 +26,31 @@
 
 <body>
 
+<canvas id="ascii" class="ascii" aria-hidden="true"></canvas>
+
 <header>
-  <h1>Han Connects</h1>
+  <h1 class="brand">
+    <svg class="logo" viewBox="0 0 420 100" role="img" aria-label="Han Connects">
+      <g stroke="currentColor" stroke-width="11" stroke-linecap="butt"
+         stroke-linejoin="miter" fill="none">
+        <line x1="32" y1="14" x2="32" y2="86"/>
+        <line x1="68" y1="14" x2="68" y2="86"/>
+        <path d="M10 60 L50 60 L50 40 L90 40"/>
+      </g>
+      <text x="112" y="62" fill="currentColor"
+            style="font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:34px">connects</text>
+    </svg>
+  </h1>
+
   <p class="tagline">
     Han Lee &mdash; I connect people to the people who make things happen.<br>
     Orlando, Florida.
   </p>
+
   <nav>
     <a href="https://www.instagram.com/xplodingducky/">Instagram</a>
     <a href="/linkedin.html">LinkedIn</a>
-    <button class="theme" id="theme" aria-label="Switch color theme">dark</button>
+    <button class="bulb" id="theme" type="button" aria-label="Switch color theme"></button>
   </nav>
 </header>
 
@@ -95,11 +110,6 @@
       retreat actually is.
     </p>
   </details>
-
-  <div class="row">
-    <span>bruh.</span>
-    <span class="desc">Merch line with a creator, via TikTok Shop</span>
-  </div>
 </section>
 
 <section>
@@ -165,7 +175,7 @@
   </p>
   <p>
     <a href="mailto:nateq876@gmail.com" id="email">nateq876@gmail.com</a>
-    <button class="copy" id="copy" aria-label="Copy email address">copy</button>
+    <button class="copy" id="copy" type="button" aria-label="Copy email address">copy</button>
   </p>
 </section>
 
