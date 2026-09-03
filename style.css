@@ -1,9 +1,13 @@
 /* ==========================================================
-   Personal site
-   Sections: tokens, base, links, header, layout, contact
+   Han Connects — personal site
+   Sections: tokens, base, links, header, layout, details,
+             tags, buttons
    ========================================================== */
 
-/* ---------- tokens ---------- */
+/* ---------- tokens ----------
+   Light is the default. Dark applies either when the visitor's
+   system asks for it, or when the toggle sets data-theme="dark".
+   The :not() guard lets an explicit "light" choice beat the OS. */
 
 :root {
   --bg:     #fcfcfa;
@@ -13,12 +17,12 @@
   --accent: #2f4f9e;
   --mark:   #f2f0e8;
 
-  --measure: 46rem;   /* max line length */
-  --gap:     3rem;    /* space between sections */
+  --measure: 46rem;
+  --gap:     3rem;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg:     #1a1a18;
     --ink:    #e6e4dd;
     --muted:  #8d8d84;
@@ -26,6 +30,15 @@
     --accent: #8fa9ee;
     --mark:   #26261f;
   }
+}
+
+:root[data-theme="dark"] {
+  --bg:     #1a1a18;
+  --ink:    #e6e4dd;
+  --muted:  #8d8d84;
+  --rule:   #2f2f2b;
+  --accent: #8fa9ee;
+  --mark:   #26261f;
 }
 
 /* ---------- base ---------- */
@@ -52,6 +65,8 @@ body {
     font-size: 15.5px;
   }
 }
+
+p { max-width: 40rem; }
 
 /* ---------- links ---------- */
 
@@ -114,9 +129,7 @@ h2 {
 
 .year:first-of-type { margin-top: 0; }
 
-/* Two-column rows: aligned on desktop, stacked on mobile.
-   Replaces the space-padded monospace alignment trick,
-   which collapses on narrow screens. */
+/* Two-column rows: aligned on desktop, stacked on mobile. */
 .row {
   display: grid;
   grid-template-columns: 1fr;
@@ -125,8 +138,8 @@ h2 {
 }
 
 @media (min-width: 620px) {
-  .row      { grid-template-columns: 15rem 1fr; }
-  .row--work { grid-template-columns: 17rem 1fr; }
+  .row       { grid-template-columns: 15rem 1fr; }
+  .row--work { grid-template-columns: 15rem 1fr; }
 }
 
 .row .desc { color: var(--muted); }
@@ -136,20 +149,72 @@ h2 {
   font-size: 0.9em;
 }
 
-/* ---------- contact ---------- */
+/* ---------- status tag ---------- */
 
-.copy {
+.tag {
+  color: var(--muted);
+  font-size: 0.82em;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 0.05em 0.4em;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+
+/* ---------- expandable detail ---------- */
+
+details { margin: 0.2rem 0 0.6rem; }
+
+summary {
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+  display: inline-block;
+}
+
+summary::-webkit-details-marker { display: none; }
+
+summary::before { content: "+ "; }
+
+details[open] summary::before { content: "\2212 "; }  /* minus sign */
+
+summary:hover { color: var(--accent); }
+
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+details p {
+  border-left: 1px solid var(--rule);
+  margin: 0.5rem 0 0;
+  padding-left: 1rem;
+  max-width: 34rem;
+}
+
+/* ---------- buttons ---------- */
+
+.copy,
+.theme {
   font: inherit;
   color: var(--muted);
   background: none;
   border: 0;
-  padding: 0 0.35rem;
+  padding: 0;
   cursor: pointer;
 }
 
-.copy:hover { color: var(--accent); }
+.copy { padding: 0 0.35rem; }
 
-.copy:focus-visible {
+.copy:hover,
+.theme:hover { color: var(--accent); }
+
+.copy:focus-visible,
+.theme:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
 }

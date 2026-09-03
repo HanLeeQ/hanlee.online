@@ -3,29 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your Name</title>
-<meta name="description" content="Projects and work by Your Name.">
+<title>Han Connects</title>
+<meta name="description" content="Han Lee. Talent management, brand partnerships, and content strategy. Orlando, Florida.">
 
-<!-- Open Graph: controls the preview card when someone shares your link -->
-<meta property="og:title" content="Your Name">
-<meta property="og:description" content="Projects and work by Your Name.">
+<meta property="og:title" content="Han Connects">
+<meta property="og:description" content="I connect people to the people who make things happen.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yourdomain.com/">
 
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>▲</text></svg>">
 <link rel="stylesheet" href="/style.css">
+
+<!-- Applies the saved theme before first paint so the page never flashes
+     the wrong colors. Must stay inline and stay here in the head. -->
+<script>
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
 </head>
 
 <body>
 
 <header>
-  <h1>Your Name</h1>
-  <p class="tagline">One line about what you build. Based in Orlando.</p>
+  <h1>Han Connects</h1>
+  <p class="tagline">
+    Han Lee &mdash; I connect people to the people who make things happen.<br>
+    Orlando, Florida.
+  </p>
   <nav>
-    <a href="https://github.com/yourusername">Github</a>
-    <a href="https://www.linkedin.com/in/yourusername">LinkedIn</a>
-    <a href="https://x.com/yourusername">Twitter</a>
-    <a href="/blog">Blog</a>
+    <a href="https://www.instagram.com/xplodingducky/">Instagram</a>
+    <a href="/linkedin.html">LinkedIn</a>
+    <button class="theme" id="theme" aria-label="Switch color theme">dark</button>
   </nav>
 </header>
 
@@ -34,44 +44,127 @@
 <section>
   <h2>Projects</h2>
 
-  <p class="year">2026</p>
-  <div class="row">
-    <a href="https://example.com">Project One</a>
-    <span class="desc">What it does, in six words</span>
-  </div>
-  <div class="row">
-    <a href="https://example.com">Project Two</a>
-    <span class="desc">What it does, in six words</span>
-  </div>
+  <p class="year">2027</p>
 
-  <p class="year">2025</p>
   <div class="row">
-    <a href="https://example.com">Project Three</a>
-    <span class="desc">What it does, in six words</span>
+    <span>Creator Card <span class="tag">coming soon</span></span>
+    <span class="desc">Membership and rewards for content creators</span>
+  </div>
+  <details>
+    <summary>more</summary>
+    <p>
+      A membership and reward system for content creators, built on top of my
+      talent management work. The idea is that creators at every size should
+      get the access, perks, and rooms that right now only open up once you
+      hit a follower count.
+    </p>
+  </details>
+
+  <p class="year">2026</p>
+
+  <div class="row">
+    <span>Dead Cat Society <span class="tag">launching online soon</span></span>
+    <span class="desc">A community for people who like learning things</span>
+  </div>
+  <details>
+    <summary>more</summary>
+    <p>
+      Started on campus, moving online. Education and entertainment are
+      collapsing into each other fast, and short form is where most people
+      now learn things by accident. Dead Cat Society uses that on purpose
+      &mdash; short form content built to make people curious again instead
+      of just keeping them scrolling.
+    </p>
+  </details>
+
+  <div class="row">
+    <a href="https://onsen-retreat.com/">Onsen Retreat</a>
+    <span class="desc">Flying finalists to Japan to build in public</span>
+  </div>
+  <details>
+    <summary>more</summary>
+    <p>
+      Joined as a volunteer marketing strategist after the founder's launch
+      video took off. I researched comparable programs to find a working
+      model for the format, then argued for shifting the content engine off
+      the founder and onto the applicants &mdash; featuring real submissions,
+      making selection a public multi-stage event, and letting people who get
+      in promote their own win. Also worked through sponsor strategy: which
+      partnerships are worth chasing, which are a distraction, and where to
+      draw the line on sponsor involvement before it starts changing what the
+      retreat actually is.
+    </p>
+  </details>
+
+  <div class="row">
+    <span>bruh.</span>
+    <span class="desc">Merch line with a creator, via TikTok Shop</span>
   </div>
 </section>
 
 <section>
-  <h2>Work <span class="aside">[<a href="/resume.pdf">resume</a>]</span></h2>
+  <h2>What I do</h2>
 
   <div class="row row--work">
-    <span>Senior Engineer</span>
-    <span>@ <a href="https://example.com">Company</a> <span class="desc">2023&ndash;now</span></span>
+    <span>Talent management</span>
+    <span class="desc">Representing creators, positioning, career strategy</span>
   </div>
   <div class="row row--work">
-    <span>Engineer</span>
-    <span>@ <a href="https://example.com">Company</a> <span class="desc">2020&ndash;2023</span></span>
+    <span>Brand partnerships</span>
+    <span class="desc">Brand outreach, rate negotiation, deliverables, contracts, payment terms</span>
   </div>
   <div class="row row--work">
-    <span>Junior Engineer</span>
-    <span>@ <a href="https://example.com">Company</a> <span class="desc">2018&ndash;2020</span></span>
+    <span>Content strategy</span>
+    <span class="desc">Formats, hooks, posting cadence, what to make and why</span>
+  </div>
+  <div class="row row--work">
+    <span>Creative direction</span>
+    <span class="desc">Setting the look and the tone, then holding the line on it</span>
+  </div>
+  <div class="row row--work">
+    <span>Communications</span>
+    <span class="desc">Getting the right people in the same room and keeping them there</span>
+  </div>
+  <div class="row row--work">
+    <span>Sales</span>
+    <span class="desc">Two years closing, high-ticket and warm-lead</span>
+  </div>
+  <div class="row row--work">
+    <span>UGC creation</span>
+    <span class="desc">Shooting and editing content brands can actually run</span>
+  </div>
+  <div class="row row--work">
+    <span>Social media management</span>
+    <span class="desc">Ran a channel from pipeline to community</span>
+  </div>
+  <details>
+    <summary>more</summary>
+    <p>
+      Managed the full content pipeline end to end &mdash; scripting,
+      scheduling, editing, publishing. Grew a channel by 700K subscribers.
+      Ran product testing for sponsored placements. Owned brand identity, and
+      spent most of my energy on cultivating a community that actually cares
+      about what gets posted, because that is what converts. Reach is easy to
+      buy. An audience that trusts you is not.
+    </p>
+  </details>
+</section>
+
+<section>
+  <h2>School</h2>
+  <div class="row row--work">
+    <span>BS Business Marketing</span>
+    <span>University of Florida <span class="desc">in progress</span></span>
   </div>
 </section>
 
 <section>
   <h2>Contact</h2>
   <p>
-    <a href="mailto:you@yourdomain.com" id="email">you@yourdomain.com</a>
+    Looking to meet people, or need an introduction to someone? Email me.
+  </p>
+  <p>
+    <a href="mailto:nateq876@gmail.com" id="email">nateq876@gmail.com</a>
     <button class="copy" id="copy" aria-label="Copy email address">copy</button>
   </p>
 </section>
