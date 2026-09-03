@@ -1,7 +1,7 @@
 /* ==========================================================
    Han Connects — personal site
-   Sections: tokens, base, ascii layer, links, brand, header,
-             layout, details, tags, buttons
+   Sections: tokens, syntax palette, base, ascii layer, links,
+             brand, header, layout, details, tags, buttons
    ========================================================== */
 
 /* ---------- tokens ----------
@@ -16,7 +16,17 @@
   --rule:   #e2e2dc;
   --accent: #2f4f9e;
   --mark:   #f2f0e8;
-  --art:    #cfccc0;
+
+  /* syntax palette — numeric, keyword, string.
+     Light values borrowed from IntelliJ Light. */
+  --num: #1750eb;
+  --kw:  #a35200;
+  --str: #067d17;
+
+  /* ascii layer — same three hues, dialled back */
+  --art-num: #93a6c9;
+  --art-op:  #c9ab88;
+  --art-alt: #9dbb9a;
 
   --measure: 46rem;
   --gap:     3rem;
@@ -30,7 +40,15 @@
     --rule:   #2f2f2b;
     --accent: #8fa9ee;
     --mark:   #26261f;
-    --art:    #3d3d36;
+
+    /* Darcula values */
+    --num: #6897bb;
+    --kw:  #cc7832;
+    --str: #6a8759;
+
+    --art-num: #4a6484;
+    --art-op:  #7d5c3f;
+    --art-alt: #52694a;
   }
 }
 
@@ -41,7 +59,14 @@
   --rule:   #2f2f2b;
   --accent: #8fa9ee;
   --mark:   #26261f;
-  --art:    #3d3d36;
+
+  --num: #6897bb;
+  --kw:  #cc7832;
+  --str: #6a8759;
+
+  --art-num: #4a6484;
+  --art-op:  #7d5c3f;
+  --art-alt: #52694a;
 }
 
 /* ---------- base ----------
@@ -171,7 +196,7 @@ h2 {
 }
 
 .year {
-  color: var(--muted);
+  color: var(--num);
   margin: 1.5rem 0 0.4rem;
 }
 
@@ -185,6 +210,11 @@ h2 {
   padding: 0.15rem 0;
 }
 
+/* Capability rows get more room than project rows — eight of
+   them in a stack needs the breathing space to stay scannable.
+   Tune this one value to loosen or tighten the whole section. */
+.row--work { padding: 0.45rem 0; }
+
 @media (min-width: 620px) {
   .row       { grid-template-columns: 15rem 1fr; }
   .row--work { grid-template-columns: 15rem 1fr; }
@@ -192,21 +222,28 @@ h2 {
 
 .row .desc { color: var(--muted); }
 
+/* ---------- highlighted values ---------- */
+
+.num { color: var(--num); }
+
 /* ---------- status tag ---------- */
 
 .tag {
-  color: var(--muted);
   font-size: 0.82em;
-  border: 1px solid var(--rule);
+  border: 1px solid currentColor;
+  border-color: color-mix(in srgb, currentColor 40%, transparent);
   border-radius: 2px;
   padding: 0.05em 0.4em;
   white-space: nowrap;
   vertical-align: 1px;
 }
 
+.tag--soon { color: var(--kw); }
+.tag--live { color: var(--str); }
+
 /* ---------- expandable detail ---------- */
 
-details { margin: 0.2rem 0 0.6rem; }
+details { margin: 0.1rem 0 0.9rem; }
 
 summary {
   color: var(--muted);

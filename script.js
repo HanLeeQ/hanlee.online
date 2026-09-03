@@ -108,6 +108,10 @@ document.addEventListener('DOMContentLoaded', function () {
      expressed in the same 0-100 space as favicon.svg. Each
      grid cell whose centre falls inside a stroke becomes a
      landing spot for one character.
+
+     Characters are coloured the way a syntax highlighter
+     would: digits numeric, slashes and pipes operator,
+     everything else the third hue.
      ------------------------------------------------------ */
 
   var canvas = document.getElementById('ascii');
@@ -121,7 +125,10 @@ document.addEventListener('DOMContentLoaded', function () {
   var W = COLS * CELL;
   var H = ROWS * CELL;
 
-  var GLYPHS = '0123456789|/\\-_=+'.split('');
+  var DIGITS = '0123456789';
+  var OPS    = '|/\\';
+  var ALTS   = '-_=+';
+  var GLYPHS = (DIGITS + OPS + ALTS).split('');
 
   // Stroke rectangles in 0-100 logo space. Stroke width 11
   // means each centreline spreads 5.5 either side.
@@ -159,8 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
         bx: scatterX(),
         by: scatterY(),
         delay: Math.random() * 0.35,
-        glyph: GLYPHS[(Math.random() * GLYPHS.length) | 0],
-        seed: Math.random()
+        glyph: GLYPHS[(Math.random() * GLYPHS.length) | 0]
       });
     }
   }
@@ -175,15 +181,26 @@ document.addEventListener('DOMContentLoaded', function () {
   ctx.textBaseline = 'middle';
   ctx.font = '13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
 
-  var artColor = '#cfccc0';
+  var ART = { num: '#93a6c9', op: '#c9ab88', alt: '#9dbb9a' };
 
-  function readColor() {
-    var v = getComputedStyle(root).getPropertyValue('--art').trim();
-    if (v) artColor = v;
+  function readColors() {
+    var cs = getComputedStyle(root);
+    var n = cs.getPropertyValue('--art-num').trim();
+    var o = cs.getPropertyValue('--art-op').trim();
+    var a = cs.getPropertyValue('--art-alt').trim();
+    if (n) ART.num = n;
+    if (o) ART.op = o;
+    if (a) ART.alt = a;
   }
 
-  readColor();
-  window.__asciiRecolor = readColor;
+  readColors();
+  window.__asciiRecolor = readColors;
+
+  function colorFor(g) {
+    if (DIGITS.indexOf(g) !== -1) return ART.num;
+    if (OPS.indexOf(g) !== -1) return ART.op;
+    return ART.alt;
+  }
 
   // Phase boundaries in milliseconds.
   var FADE_IN = 1200;
@@ -204,8 +221,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Draw the assembled state once and stop.
     ctx.clearRect(0, 0, W, H);
     ctx.globalAlpha = 1;
-    ctx.fillStyle = artColor;
     for (var k = 0; k < particles.length; k++) {
+      ctx.fillStyle = colorFor(particles[k].glyph);
       ctx.fillText(particles[k].glyph, particles[k].tx, particles[k].ty);
     }
     return;
@@ -233,7 +250,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = artColor;
 
     var settled = t >= GATHER && t < SCATTER;
 
@@ -243,14 +259,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (t < FADE_IN) {
         x = d.ax; y = d.ay;
-        alpha = (t / FADE_IN) * 0.9;
+        alpha = t / FADE_IN;
       } else if (t < GATHER) {
         var g = clamp01(((t - FADE_IN) / (GATHER - FADE_IN) - d.delay) /
                         (1 - d.delay));
         var e = easeInOut(g);
         x = d.ax + (d.tx - d.ax) * e;
         y = d.ay + (d.ty - d.ay) * e;
-        alpha = 0.9;
+        alpha = 1;
       } else if (t < HOLD) {
         x = d.tx; y = d.ty;
         alpha = 1;
@@ -260,10 +276,10 @@ document.addEventListener('DOMContentLoaded', function () {
         var es = easeInOut(s);
         x = d.tx + (d.bx - d.tx) * es;
         y = d.ty + (d.by - d.ty) * es;
-        alpha = 0.9 - es * 0.35;
+        alpha = 1 - es * 0.35;
       } else {
         x = d.bx; y = d.by;
-        alpha = 0.55 * (1 - (t - SCATTER) / (LOOP - SCATTER));
+        alpha = 0.65 * (1 - (t - SCATTER) / (LOOP - SCATTER));
       }
 
       // Characters churn while drifting and lock once assembled.
@@ -272,6 +288,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       ctx.globalAlpha = alpha < 0 ? 0 : alpha;
+      ctx.fillStyle = colorFor(d.glyph);
       ctx.fillText(d.glyph, x, y);
     }
 
