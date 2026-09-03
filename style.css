@@ -272,6 +272,12 @@ details p {
   max-width: 34rem;
 }
 
+/* Continues the indent rule under a detail paragraph. */
+.detail-link {
+  margin-top: 0;
+  padding-top: 0.2rem;
+}
+
 /* ---------- buttons ---------- */
 
 .copy,
