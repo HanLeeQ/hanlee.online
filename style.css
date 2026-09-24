@@ -430,6 +430,6 @@ details p {
   margin-top: 0.35rem;
 }
 
-.media--pair .clip:first-child figcaption { color: var(--str); }
+.clip figcaption.hl { color: var(--str); }
 
 .note p:last-child { margin-bottom: 0; }
