@@ -394,7 +394,7 @@ details p {
 }
 
 /* Two clips side by side, writing underneath. */
-.media--pair { grid-template-columns: 1fr 1fr; }
+.media--pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 
 @media (min-width: 620px) {
   .media--pair { grid-template-columns: 12rem 12rem 1fr; }
@@ -425,12 +425,17 @@ details p {
 }
 
 .clip figcaption {
-  white-space: nowrap;
   color: var(--muted);
   font-size: 0.85em;
   margin-top: 0.35rem;
 }
 
 .clip figcaption.hl { color: var(--str); }
+
+/* Keep labels on one line only where there is room for it;
+   on phones they wrap so both columns stay the same width. */
+@media (min-width: 620px) {
+  .clip figcaption { white-space: nowrap; }
+}
 
 .note p:last-child { margin-bottom: 0; }
