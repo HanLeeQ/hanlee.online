@@ -103,15 +103,20 @@ p { max-width: 40rem; }
 
 /* ---------- ascii layer ----------
    Fixed, so it holds still while the text scrolls over it.
-   Hidden below 1180px, where there is no empty right column
-   to sit in. */
+   It fills everything to the right of the text column, edge
+   to edge, and the script fades characters out toward every
+   edge so there is no visible box. Hidden below 1180px, where
+   there is no empty right column to sit in. */
 
 .ascii {
   display: none;
   position: fixed;
-  top: 50%;
-  right: 3vw;
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
+  left: calc(var(--measure) + 1rem);
+  right: 0;
+  width: auto;
+  height: auto;
   z-index: -1;
   pointer-events: none;
   user-select: none;
@@ -256,7 +261,7 @@ summary::-webkit-details-marker { display: none; }
 
 summary::before { content: "+ "; }
 
-details[open] summary::before { content: "\2212 "; }  /* minus sign */
+details[open] summary::before { content: "\2212\00a0"; }  /* minus sign */
 
 summary:hover { color: var(--accent); }
 
@@ -317,3 +322,114 @@ details p {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* ==========================================================
+   Work page
+   ========================================================== */
+
+.brand-link,
+.brand-link:hover {
+  background: none;
+  text-decoration: none;
+  color: inherit;
+}
+
+.prose p { margin: 0 0 1rem; }
+
+.prose details { margin: 0.2rem 0 0.4rem; }
+
+/* The fold under "How I work" dropdowns keeps the indent rule
+   from the homepage, applied once to the wrapper instead of
+   to every paragraph. */
+.fold {
+  border-left: 1px solid var(--rule);
+  margin: 0.5rem 0 1rem;
+  padding-left: 1rem;
+}
+
+.fold p,
+.case-body p {
+  border-left: 0;
+  padding-left: 0;
+  margin: 0 0 1rem;
+  max-width: 40rem;
+}
+
+.closer { margin-top: 1.25rem; }
+
+.muted { color: var(--muted); }
+
+.hint {
+  color: var(--muted);
+  font-size: 0.9em;
+}
+
+/* ---------- cases ---------- */
+
+.case { margin: 0 0 0.9rem; }
+
+.case-name { font-weight: 700; }
+
+.case-body {
+  border-left: 1px solid var(--rule);
+  margin: 0.75rem 0 1.5rem;
+  padding: 0.25rem 0 0.25rem 1rem;
+}
+
+/* ---------- media rows ----------
+   Same idea as the homepage rows: the video sits in a narrow
+   left column and the writing about it sits to the right.
+   Stacks on phones. */
+
+.media {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem 1.5rem;
+  align-items: start;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 620px) {
+  .media { grid-template-columns: 12rem 1fr; }
+}
+
+/* Two clips side by side, writing underneath. */
+.media--pair { grid-template-columns: 1fr 1fr; }
+
+@media (min-width: 620px) {
+  .media--pair { grid-template-columns: 12rem 12rem 1fr; }
+}
+
+/* A vertical clip next to a landscape one. */
+@media (min-width: 620px) {
+  .media--wide { grid-template-columns: 12rem 1fr; }
+}
+
+.media--pair .note,
+.media--wide .note { grid-column: 1 / -1; }
+
+.clip {
+  margin: 0;
+  max-width: 16rem;
+}
+
+.media--wide .clip:nth-child(2) { max-width: none; }
+
+.clip video {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--mark);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+
+.clip figcaption {
+  color: var(--muted);
+  font-size: 0.85em;
+  margin-top: 0.35rem;
+}
+
+.media--pair .clip:first-child figcaption { color: var(--str); }
+
+.note p:last-child { margin-bottom: 0; }

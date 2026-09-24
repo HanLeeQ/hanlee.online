@@ -2,7 +2,8 @@
    Han Connects
    1. theme toggle (lightbulb)
    2. copy email
-   3. ascii logo animation
+   3. videos: one plays at a time
+   4. ascii logo animation
    ========================================================== */
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -101,17 +102,53 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ------------------------------------------------------
-     3. ascii logo animation
+     3. videos: one plays at a time
 
-     Target positions are derived from the logo's real
-     geometry: two uprights plus the stepped crossbar,
-     expressed in the same 0-100 space as favicon.svg. Each
-     grid cell whose centre falls inside a stroke becomes a
-     landing spot for one character.
+     Starting any video pauses every other one, which is what
+     lets the with / without pair be compared back to back.
+     Closing a dropdown pauses whatever is playing inside it.
+     ------------------------------------------------------ */
 
-     Characters are coloured the way a syntax highlighter
-     would: digits numeric, slashes and pipes operator,
-     everything else the third hue.
+  var videos = document.querySelectorAll('video');
+
+  if (videos.length) {
+    document.addEventListener('play', function (ev) {
+      for (var v = 0; v < videos.length; v++) {
+        if (videos[v] !== ev.target && !videos[v].paused) videos[v].pause();
+      }
+    }, true);
+
+    var folds = document.querySelectorAll('details');
+    for (var f = 0; f < folds.length; f++) {
+      folds[f].addEventListener('toggle', function () {
+        if (this.open) return;
+        var inside = this.querySelectorAll('video');
+        for (var k = 0; k < inside.length; k++) inside[k].pause();
+      });
+    }
+  }
+
+  /* ------------------------------------------------------
+     4. ascii logo animation
+
+     The canvas covers everything to the right of the text.
+     The logo is sized to that space and centred in it.
+
+     Target positions come from the logo's real geometry: two
+     uprights plus the stepped crossbar, in the same 0-100
+     space as favicon.svg. Each grid cell whose centre falls
+     inside a stroke becomes a landing spot for one character.
+
+     Feathering, so there is never a visible box:
+       - scattered characters spread across the whole area in
+         a soft cloud, thinning out with distance
+       - every character fades to nothing near any canvas edge
+       - a halo of loose "dust" characters gathers around the
+         logo but never locks in, so its edges stay soft
+
+     Characters are coloured like a syntax highlighter:
+     digits numeric, slashes and pipes operator, the rest the
+     third hue.
      ------------------------------------------------------ */
 
   var canvas = document.getElementById('ascii');
@@ -119,19 +156,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var ctx = canvas.getContext('2d');
 
-  var COLS = 26;
-  var ROWS = 26;
-  var CELL = 15;
-  var W = COLS * CELL;
-  var H = ROWS * CELL;
+  var CELL = 14;
+  var FONT = '13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
 
   var DIGITS = '0123456789';
   var OPS    = '|/\\';
   var ALTS   = '-_=+';
   var GLYPHS = (DIGITS + OPS + ALTS).split('');
 
-  // Stroke rectangles in 0-100 logo space. Stroke width 11
-  // means each centreline spreads 5.5 either side.
   var STROKES = [
     { x0: 26.5, x1: 37.5, y0: 14.0, y1: 86.0 },
     { x0: 62.5, x1: 73.5, y0: 14.0, y1: 86.0 },
@@ -148,38 +180,110 @@ document.addEventListener('DOMContentLoaded', function () {
     return false;
   }
 
-  function scatterX() { return Math.random() * W; }
-  function scatterY() { return Math.random() * H; }
+  function randGlyph() { return GLYPHS[(Math.random() * GLYPHS.length) | 0]; }
 
-  var particles = [];
-
-  for (var r = 0; r < ROWS; r++) {
-    for (var c = 0; c < COLS; c++) {
-      var lx = (c / (COLS - 1)) * 100;
-      var ly = (r / (ROWS - 1)) * 100;
-      if (!inLogo(lx, ly)) continue;
-      particles.push({
-        tx: c * CELL + CELL / 2,
-        ty: r * CELL + CELL / 2,
-        ax: scatterX(),
-        ay: scatterY(),
-        bx: scatterX(),
-        by: scatterY(),
-        delay: Math.random() * 0.35,
-        glyph: GLYPHS[(Math.random() * GLYPHS.length) | 0]
-      });
-    }
+  // Roughly normal random number, mean 0, sd 1.
+  function gauss() {
+    return (Math.random() + Math.random() + Math.random() - 1.5) * 1.41;
   }
 
-  var dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = W * dpr;
-  canvas.height = H * dpr;
-  canvas.style.width = W + 'px';
-  canvas.style.height = H + 'px';
-  ctx.scale(dpr, dpr);
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = '13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+  function smooth(e0, e1, x) {
+    var t = (x - e0) / (e1 - e0);
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    return t * t * (3 - 2 * t);
+  }
+
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+  function easeInOut(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  var W = 0, H = 0, CX = 0, CY = 0, SPREAD = 0, EDGE = 0;
+  var particles = [];
+
+  // A scatter point: anywhere in the area, denser toward the
+  // middle, some deliberately past the edges where they are
+  // invisible, so the cloud has no boundary.
+  function scatterPoint() {
+    var a = Math.random() * Math.PI * 2;
+    var r = SPREAD * (0.2 + 0.95 * Math.sqrt(Math.random()));
+    return { x: CX + Math.cos(a) * r * (W / Math.max(W, H)) * 1.15,
+             y: CY + Math.sin(a) * r * (H / Math.max(W, H)) * 1.15 };
+  }
+
+  function edgeFade(x, y) {
+    return smooth(0, EDGE, x) * smooth(0, EDGE, W - x) *
+           smooth(0, EDGE, y) * smooth(0, EDGE, H - y);
+  }
+
+  function build() {
+    // Hidden on narrow screens: skip all the work.
+    if (getComputedStyle(canvas).display === 'none') {
+      W = H = 0;
+      particles = [];
+      return;
+    }
+    var rect = canvas.getBoundingClientRect();
+    W = Math.max(0, Math.round(window.innerWidth - rect.left));
+    H = Math.round(window.innerHeight);
+    if (W < 50 || H < 50) { particles = []; return; }
+
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = FONT;
+
+    CX = W / 2;
+    CY = H / 2;
+    SPREAD = Math.max(W, H) * 0.62;
+    EDGE = Math.min(W, H) * 0.16;
+
+    // Logo size: most of the free area, capped so it never
+    // gets cartoonish on very wide screens.
+    var size = Math.min(W * 0.78, H * 0.72, 760);
+    var n = Math.max(20, Math.round(size / CELL));
+    var ox = CX - (n * CELL) / 2;
+    var oy = CY - (n * CELL) / 2;
+
+    particles = [];
+    var targets = [];
+
+    for (var r = 0; r < n; r++) {
+      for (var c = 0; c < n; c++) {
+        var lx = ((c + 0.5) / n) * 100;
+        var ly = ((r + 0.5) / n) * 100;
+        if (!inLogo(lx, ly)) continue;
+        targets.push({ x: ox + c * CELL + CELL / 2, y: oy + r * CELL + CELL / 2 });
+      }
+    }
+
+    function add(tx, ty, dust) {
+      var a = scatterPoint(), b = scatterPoint();
+      particles.push({
+        tx: tx, ty: ty, ax: a.x, ay: a.y, bx: b.x, by: b.y,
+        delay: Math.random() * 0.4,
+        dust: dust,
+        seed: Math.random() * Math.PI * 2,
+        glyph: randGlyph()
+      });
+    }
+
+    for (var t = 0; t < targets.length; t++) add(targets[t].x, targets[t].y, false);
+
+    // Dust: a loose halo around the strokes.
+    var dustCount = Math.round(targets.length * 0.45);
+    for (var d = 0; d < dustCount; d++) {
+      var base = targets[(Math.random() * targets.length) | 0];
+      var spread = CELL * (1.5 + Math.random() * 4);
+      add(base.x + gauss() * spread, base.y + gauss() * spread, true);
+    }
+  }
 
   var ART = { num: '#93a6c9', op: '#c9ab88', alt: '#9dbb9a' };
 
@@ -194,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   readColors();
-  window.__asciiRecolor = readColors;
+  window.__asciiRecolor = function () { readColors(); if (reduced) drawStill(); };
 
   function colorFor(g) {
     if (DIGITS.indexOf(g) !== -1) return ART.num;
@@ -203,49 +307,64 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Phase boundaries in milliseconds.
-  var FADE_IN = 1200;
-  var GATHER  = 3900;
-  var HOLD    = 6300;
-  var SCATTER = 8900;
-  var LOOP    = 10200;
-
-  function easeInOut(t) {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  }
-
-  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  var FADE_IN = 1400;
+  var GATHER  = 4600;
+  var HOLD    = 7200;
+  var SCATTER = 10200;
+  var LOOP    = 11800;
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (reduced) {
-    // Draw the assembled state once and stop.
-    ctx.clearRect(0, 0, W, H);
-    ctx.globalAlpha = 1;
-    for (var k = 0; k < particles.length; k++) {
-      ctx.fillStyle = colorFor(particles[k].glyph);
-      ctx.fillText(particles[k].glyph, particles[k].tx, particles[k].ty);
-    }
-    return;
+  function draw(p, x, y, alpha) {
+    var a = alpha * edgeFade(x, y);
+    if (a <= 0.01) return;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = colorFor(p.glyph);
+    ctx.fillText(p.glyph, x, y);
   }
+
+  function drawStill() {
+    ctx.clearRect(0, 0, W, H);
+    for (var k = 0; k < particles.length; k++) {
+      var p = particles[k];
+      draw(p, p.tx, p.ty, p.dust ? 0.35 : 1);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  build();
+
+  var resizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      build();
+      if (reduced) drawStill();
+    }, 150);
+  });
+
+  if (reduced) { drawStill(); return; }
 
   var start = null;
   var cycle = 0;
 
   function frame(now) {
     if (start === null) start = now;
-    var t = (now - start) % LOOP;
-    var thisCycle = Math.floor((now - start) / LOOP);
+    var elapsed = now - start;
+    var t = elapsed % LOOP;
+    var thisCycle = Math.floor(elapsed / LOOP);
 
-    // New scatter positions each time the loop restarts, so it
-    // never replays the exact same dispersal.
+    // Fresh scatter positions every loop, so it never replays
+    // the exact same dispersal.
     if (thisCycle !== cycle) {
       cycle = thisCycle;
       for (var i = 0; i < particles.length; i++) {
+        var np = scatterPoint();
         particles[i].ax = particles[i].bx;
         particles[i].ay = particles[i].by;
-        particles[i].bx = scatterX();
-        particles[i].by = scatterY();
-        particles[i].delay = Math.random() * 0.35;
+        particles[i].bx = np.x;
+        particles[i].by = np.y;
+        particles[i].delay = Math.random() * 0.4;
       }
     }
 
@@ -253,43 +372,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var settled = t >= GATHER && t < SCATTER;
 
-    for (var p = 0; p < particles.length; p++) {
-      var d = particles[p];
+    for (var q = 0; q < particles.length; q++) {
+      var d = particles[q];
       var x, y, alpha;
+      var peak = d.dust ? 0.4 : 1;
 
       if (t < FADE_IN) {
         x = d.ax; y = d.ay;
-        alpha = t / FADE_IN;
+        alpha = (t / FADE_IN) * 0.7;
       } else if (t < GATHER) {
-        var g = clamp01(((t - FADE_IN) / (GATHER - FADE_IN) - d.delay) /
-                        (1 - d.delay));
+        var g = clamp01(((t - FADE_IN) / (GATHER - FADE_IN) - d.delay) / (1 - d.delay));
         var e = easeInOut(g);
         x = d.ax + (d.tx - d.ax) * e;
         y = d.ay + (d.ty - d.ay) * e;
-        alpha = 1;
+        alpha = 0.7 + (peak - 0.7) * e;
       } else if (t < HOLD) {
         x = d.tx; y = d.ty;
-        alpha = 1;
+        alpha = peak;
       } else if (t < SCATTER) {
-        var s = clamp01(((t - HOLD) / (SCATTER - HOLD) - d.delay) /
-                        (1 - d.delay));
+        var s = clamp01(((t - HOLD) / (SCATTER - HOLD) - d.delay) / (1 - d.delay));
         var es = easeInOut(s);
         x = d.tx + (d.bx - d.tx) * es;
         y = d.ty + (d.by - d.ty) * es;
-        alpha = 1 - es * 0.35;
+        alpha = peak + (0.7 - peak) * es;
       } else {
         x = d.bx; y = d.by;
-        alpha = 0.65 * (1 - (t - SCATTER) / (LOOP - SCATTER));
+        alpha = 0.7 * (1 - (t - SCATTER) / (LOOP - SCATTER));
       }
 
-      // Characters churn while drifting and lock once assembled.
-      if (!settled && Math.random() < 0.04) {
-        d.glyph = GLYPHS[(Math.random() * GLYPHS.length) | 0];
+      // Dust drifts a little the whole time, so the edges of
+      // the logo breathe instead of sitting as a hard outline.
+      if (d.dust) {
+        x += Math.cos(elapsed / 1400 + d.seed) * 3;
+        y += Math.sin(elapsed / 1700 + d.seed) * 3;
       }
 
-      ctx.globalAlpha = alpha < 0 ? 0 : alpha;
-      ctx.fillStyle = colorFor(d.glyph);
-      ctx.fillText(d.glyph, x, y);
+      // Characters churn while drifting and lock once
+      // assembled. Dust keeps churning slowly.
+      var churn = settled ? (d.dust ? 0.01 : 0) : 0.04;
+      if (churn && Math.random() < churn) d.glyph = randGlyph();
+
+      draw(d, x, y, alpha);
     }
 
     ctx.globalAlpha = 1;
