@@ -425,6 +425,7 @@ details p {
 }
 
 .clip figcaption {
+  white-space: nowrap;
   color: var(--muted);
   font-size: 0.85em;
   margin-top: 0.35rem;
